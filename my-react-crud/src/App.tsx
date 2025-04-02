@@ -1,101 +1,125 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
 
-interface User {
+interface Product {
   id: number;
   name: string;
-  email: string;
+  description: string;
+  price: number;
 }
 
 const App: React.FC = () => {
-  const [users, setUsers] = useState<User[]>([]);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [newProduct, setNewProduct] = useState<Omit<Product, 'id'>>({
+    name: '',
+    description: '',
+    price: 0,
+  });
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
+  const backendUrl = 'http://localhost:8080/products';
 
-  const fetchUsers = async () => {
+  const fetchProducts = async () => {
     try {
-      const response = await fetch('http://localhost:8080/users');
-      const data = await response.json();
-      setUsers(data);
+      const res = await fetch(backendUrl);
+      const data = await res.json();
+      setProducts(data);
     } catch (error) {
-      console.error('Error fetching users:', error);
+      console.error('Error fetching products:', error);
     }
   };
 
   useEffect(() => {
-    fetchUsers();
+    fetchProducts();
   }, []);
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    setNewProduct({ ...newProduct, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (editingUser) {
 
-      await fetch(`http://localhost:8080/users/${editingUser.id}`, {
+    if (editingProduct) {
+      // Оновлення продукту
+      const res = await fetch(`${backendUrl}/${editingProduct.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email })
+        body: JSON.stringify(newProduct),
       });
-      setEditingUser(null);
+      if (res.ok) {
+        fetchProducts();
+        setEditingProduct(null);
+        setNewProduct({ name: '', description: '', price: 0 });
+      }
     } else {
-
-      await fetch('http://localhost:8080/users', {
+      // Створення нового продукту
+      const res = await fetch(backendUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email })
+        body: JSON.stringify(newProduct),
       });
+      if (res.ok) {
+        fetchProducts();
+        setNewProduct({ name: '', description: '', price: 0 });
+      }
     }
-    setName('');
-    setEmail('');
-    fetchUsers();
   };
 
-  const handleEdit = (user: User) => {
-    setEditingUser(user);
-    setName(user.name);
-    setEmail(user.email);
+  const handleEdit = (product: Product) => {
+    setEditingProduct(product);
+    setNewProduct({
+      name: product.name,
+      description: product.description,
+      price: product.price,
+    });
   };
 
   const handleDelete = async (id: number) => {
-    await fetch(`http://localhost:8080/users/${id}`, {
-      method: 'DELETE'
-    });
-    fetchUsers();
+    await fetch(`${backendUrl}/${id}`, { method: 'DELETE' });
+    fetchProducts();
   };
 
   return (
     <div className="App">
-      <h1>CRUD з React (TypeScript) + Spring Boot</h1>
-
-
+      <h1>Product CRUD</h1>
       <form onSubmit={handleSubmit}>
         <input
           type="text"
-          placeholder="Ім'я"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          name="name"
+          placeholder="Name"
+          value={newProduct.name}
+          onChange={handleInputChange}
           required
         />
+        <textarea
+          name="description"
+          placeholder="Description"
+          value={newProduct.description}
+          onChange={handleInputChange}
+          required
+        ></textarea>
         <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          type="number"
+          name="price"
+          placeholder="Price"
+          value={newProduct.price}
+          onChange={handleInputChange}
           required
         />
         <button type="submit">
-          {editingUser ? 'Оновити' : 'Додати'}
+          {editingProduct ? 'Update Product' : 'Add Product'}
         </button>
       </form>
-
-
+      <hr />
       <ul>
-        {users.map(user => (
-          <li key={user.id}>
-            {user.name} ({user.email})
-            <button onClick={() => handleEdit(user)}>Редагувати</button>
-            <button onClick={() => handleDelete(user.id)}>Видалити</button>
+        {products.map((product) => (
+          <li key={product.id}>
+            <strong>{product.name}</strong> - {product.description} - ${product.price.toFixed(2)}
+            <button onClick={() => handleEdit(product)}>Edit</button>
+            <button onClick={() => handleDelete(product.id)}>Delete</button>
           </li>
         ))}
       </ul>
@@ -104,4 +128,3 @@ const App: React.FC = () => {
 };
 
 export default App;
-
