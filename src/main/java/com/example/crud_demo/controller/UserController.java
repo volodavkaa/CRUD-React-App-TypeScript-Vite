@@ -17,19 +17,19 @@ public class UserController {
     @Autowired
     private UserRepository userRepository;
 
-
+    // Create
     @PostMapping
     public User createUser(@RequestBody User user) {
         return userRepository.save(user);
     }
 
-
+    // Read All
     @GetMapping
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
-
+    // Read One
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserById(@PathVariable Long id) {
         Optional<User> user = userRepository.findById(id);
@@ -37,28 +37,28 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-
+    // Update
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User userDetails) {
+    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User updatedUser) {
         Optional<User> optionalUser = userRepository.findById(id);
         if(optionalUser.isPresent()){
             User user = optionalUser.get();
-            user.setName(userDetails.getName());
-            user.setEmail(userDetails.getEmail());
-            return ResponseEntity.ok(userRepository.save(user));
-        } else {
-            return ResponseEntity.notFound().build();
+            user.setUsername(updatedUser.getUsername());
+            user.setEmail(updatedUser.getEmail());
+            // Додайте інші поля за потреби
+            userRepository.save(user);
+            return ResponseEntity.ok(user);
         }
+        return ResponseEntity.notFound().build();
     }
 
-
+    // Delete
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         if(userRepository.existsById(id)){
             userRepository.deleteById(id);
             return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.notFound().build();
         }
+        return ResponseEntity.notFound().build();
     }
 }

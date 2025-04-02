@@ -1,28 +1,17 @@
-package com.example.crud_demo.model;
+package com.example.crud_demo.dto;
 
-import jakarta.persistence.*;
-
-@Entity
-public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
+public class UserSeedDTO {
     private String username;
     private String email;
     private String password;
 
-    public User() {
+    public UserSeedDTO() {
     }
 
-    public User(String username, String email, String password) {
+    public UserSeedDTO(String username, String email, String password) {
         this.username = username;
         this.email = email;
         this.password = password;
-    }
-
-    public Long getId() {
-        return id;
     }
 
     public String getUsername() {
@@ -49,3 +38,4 @@ public class User {
         this.password = password;
     }
 }
+

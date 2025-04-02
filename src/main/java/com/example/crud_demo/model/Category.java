@@ -1,20 +1,16 @@
 package com.example.crud_demo.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 @Entity
 public class Category {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String name;
 
-    // Поле для збереження шляху до зображення
+    // Шлях до збереженого зображення
     private String imagePath;
 
     public Category() {
