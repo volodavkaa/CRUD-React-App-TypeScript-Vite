@@ -49,7 +49,6 @@ public class CategoryController {
         if (optionalCategory.isPresent()) {
             Category category = optionalCategory.get();
             category.setName(updatedCategory.getName());
-            // Якщо потрібно оновлювати imagePath, можна додати логіку
             categoryRepository.save(category);
             return ResponseEntity.ok(category);
         } else {

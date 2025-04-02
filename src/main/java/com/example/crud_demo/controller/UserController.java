@@ -45,7 +45,6 @@ public class UserController {
             User user = optionalUser.get();
             user.setUsername(updatedUser.getUsername());
             user.setEmail(updatedUser.getEmail());
-            // Додайте інші поля за потреби
             userRepository.save(user);
             return ResponseEntity.ok(user);
         }
